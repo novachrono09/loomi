@@ -1,0 +1,20 @@
+{
+  "name": "loomi",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "microservices/*"
+  ],
+  "scripts": {
+    "dev:all": "concurrently \"npm:dev:*\"",
+    "dev:frontend": "cd apps/frontend && npm run dev",
+    "dev:backend": "cd apps/backend && npm run start:dev",
+    "dev:ai-orchestrator": "cd microservices/ai-orchestrator && python main.py",
+    "dev:pricing-engine": "cd microservices/pricing-engine && python main.py",
+    "dev:supply-chain": "cd microservices/supply-chain && python main.py"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.1"
+  }
+}
