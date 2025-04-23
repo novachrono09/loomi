@@ -1,0 +1,46 @@
+name: Infrastructure Deployment
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'infrastructure/**'
+      - '.github/workflows/infra-deploy.yml'
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./infrastructure/terraform
+
+      - name: Terraform Validate
+        run: terraform validate -no-color
+        working-directory: ./infrastructure/terraform
+
+      - name: Terraform Plan
+        run: terraform plan -no-color -input=false
+        working-directory: ./infrastructure/terraform
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve -input=false
+        working-directory: ./infrastructure/terraform
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
